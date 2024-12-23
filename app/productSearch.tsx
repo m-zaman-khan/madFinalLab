@@ -18,10 +18,10 @@ const ProductSearch = () => {
   const [loading, setLoading] = useState<boolean>(false);
 
   const handleSearch = async () => {
-    if (!searchQuery) return;
+    if (!searchQuery.trim()) return;
 
     setLoading(true);
-    // Using startAt and endAt for more reliable range queries
+
     const q = query(
       collection(db, 'products'),
       orderBy('name'),
@@ -35,12 +35,14 @@ const ProductSearch = () => {
         id: doc.id,
         ...doc.data(),
       } as Product));
-      
+
+      console.log('Query Results:', results);
+
       if (results.length === 0) {
         console.log('No products found!');
-      } else {
-        setProducts(results);
       }
+
+      setProducts(results);
     } catch (error) {
       console.error('Error fetching products:', error);
     } finally {
@@ -63,22 +65,29 @@ const ProductSearch = () => {
       {loading ? (
         <ActivityIndicator size="large" color="#007BFF" style={styles.loadingText} />
       ) : (
-        <FlatList
-          data={products}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <View style={styles.productCard}>
-              <Image source={{ uri: item.image }} style={styles.productImage} />
-              <View style={styles.productInfo}>
-                <Text style={styles.productTitle}>{item.name}</Text>
-                <Text style={styles.productDescription} numberOfLines={2}>
-                  {item.description}
-                </Text>
-                <Text style={styles.productPrice}>${item.price.toFixed(2)}</Text>
-              </View>
-            </View>
+        <>
+          {products.length === 0 && !loading && (
+            <Text style={{ textAlign: 'center', marginTop: 20 }}>
+              No products found for "{searchQuery}"
+            </Text>
           )}
-        />
+          <FlatList
+            data={products}
+            keyExtractor={(item) => item.id}
+            renderItem={({ item }) => (
+              <View style={styles.productCard}>
+                <Image source={{ uri: item.image }} style={styles.productImage} />
+                <View style={styles.productInfo}>
+                  <Text style={styles.productTitle}>{item.name}</Text>
+                  <Text style={styles.productDescription} numberOfLines={2}>
+                    {item.description}
+                  </Text>
+                  <Text style={styles.productPrice}>${item.price.toFixed(2)}</Text>
+                </View>
+              </View>
+            )}
+          />
+        </>
       )}
     </View>
   );

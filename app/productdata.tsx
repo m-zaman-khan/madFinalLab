@@ -35,3 +35,7 @@ export const sampleProducts = [
     image: 'https://picsum.photos/200/304',
   },
 ];
+
+// Add this default export
+const defaultExport = { sampleProducts };
+export default defaultExport;
